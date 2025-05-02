@@ -56,14 +56,17 @@ function App() {
       }));
 
       const gainMessages = [
-        'Lại có thêm 2k , Quá đã  😎',
-        'Sướng chưa, mất 2k kìa 💰',
-        'Khờ chi mà khờ ác  ✨',
-        'Lại hạng 5 , gà mất tiền là đúng 😂',
-        'Hạng 5 là do mình kém chứ do ai 🧧',
+        'Lại có thêm 2k , dốt vcl  😎',
+        'Sướng chưa, ngu không chịu được 💰',
+        'ngu  chi mà ngu ác  ✨',
+        'Lại hạng 5 , ngu mất tiền là đúng 😂',
+        'Hạng 5 là do mình ngu chứ do ai 🧧',
         'Không đổ lỗi , ngu là phải chịu  😎',
-        'chán không tả nổi , kém thế  😎',
-        'khờ ơi là khờ , kém ơi là kém 😎'
+        'chán không tả nổi , ngu thế  😎',
+        'ngu ơi là ngu , kém ơi là kém 😎',
+        'thứ ăn hại 😎',
+        'có thế mà hạng 5 , đần ác 😎',
+        'dốt thua mỗi Polpot 😎',
       ];
 
       const message = gainMessages[Math.floor(Math.random() * gainMessages.length)];
