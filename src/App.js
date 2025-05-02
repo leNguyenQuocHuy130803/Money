@@ -11,6 +11,8 @@ import {
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 const names = ['Huy', 'Hoàng', 'Vũ', 'Ngọc', 'Hồng', 'Tài', 'Tuấn'];
 
@@ -77,6 +79,23 @@ function App() {
     }
   };
 
+  const confirmAndUpdate = (name) => {
+    confirmAlert({
+      title: 'Xác nhận hành động',
+      message: `Bạn có chắc chắn muốn thêm 2k cho ${name}?`,
+      buttons: [
+        {
+          label: 'Chắc chắn',
+          onClick: () => updateBalance(name, 2000)
+        },
+        {
+          label: 'Hủy',
+          onClick: () => toast.info({ position: "top-center", autoClose: 2000 })
+        }
+      ]
+    });
+  };
+
   return (
     <div className="container">
       <ToastContainer />
@@ -86,9 +105,7 @@ function App() {
           <div className="user-name">{name}</div>
           <div className="user-amount">{balances[name] || 0} VND</div>
           <div className="button-group">
-            <button className="increase" onClick={() => updateBalance(name, 2000)}>+2k</button>
-            {/* Xóa hoặc vô hiệu hóa nút trừ tiền */}
-            {/* <button className="decrease" onClick={() => updateBalance(name, -2000)}>-2k</button> */}
+            <button className="increase" onClick={() => confirmAndUpdate(name)}>+2k</button>
           </div>
         </div>
       ))}

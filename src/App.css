@@ -1,70 +1,143 @@
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: #f5f7fa;
-  margin: 0;
-  padding: 0;
-}
-
+/* Cấu trúc chung của container */
 .container {
-  max-width: 500px;
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(145deg, #ff7b7b, #ff5a5a);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
   margin: 50px auto;
-  padding: 30px;
-  background: #fff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
+  text-align: center;
 }
 
 .title {
-  text-align: center;
-  font-size: 28px;
+  font-size: 32px;
+  font-weight: bold;
+  color: #fff;
   margin-bottom: 30px;
-  color: #f44336;
+  text-transform: uppercase;
 }
 
 .user-row {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  align-items: center;
+  background-color: #fff;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .user-name {
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: bold;
   color: #333;
-  width: 80px;
 }
 
 .user-amount {
-  flex-grow: 1;
-  text-align: center;
-  font-size: 18px;
-  color: red;
+  font-size: 16px;
+  color: #666;
+  font-weight: 600;
 }
 
 .button-group {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 button {
-  padding: 15px 40px;
+  font-size: 26px;
+  padding: 10px 30px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: bold;
+  transition: all 0.3s ease;
 }
 
 button:hover {
-  opacity: 0.9;
+  transform: translateY(-2px);
 }
 
-button.increase {
-  background-color: #4caf50;
-  color: white;
+button:active {
+  transform: translateY(2px);
 }
 
-button.decrease {
-  background-color: #f44336;
+.increase {
+  background-color: #ffca28;
   color: white;
+  font-weight: bold;
+}
+
+.increase:hover {
+  background-color: red;
+}
+
+button:focus {
+  outline: none;
+}
+
+button:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+}
+
+/*  */
+/* Hộp thoại xác nhận */
+.react-confirm-alert {
+  font-family: 'Poppins', sans-serif;
+}
+
+.react-confirm-alert-body {
+  background: linear-gradient(135deg, #ffcc70, #ff8a70);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+/* Tiêu đề hộp thoại */
+.react-confirm-alert-title {
+  font-size: 22px;
+  font-weight: bold;
+  text-shadow: 2px 2px 10px rgba(255, 255, 255, 0.8);
+}
+
+/* Nội dung */
+.react-confirm-alert-message {
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+/* Nút bấm */
+.react-confirm-alert-button-group {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.react-confirm-alert-button-group button {
+  background: #ff5e57;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.react-confirm-alert-button-group button:hover {
+  background: #ff3831;
+  transform: scale(1.1);
+  box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.5);
 }
