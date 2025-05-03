@@ -6,7 +6,8 @@ import {
   doc,
   getDocs,
   setDoc,
-  updateDoc
+  updateDoc,
+  deleteDoc
 } from 'firebase/firestore';
 
 import { ToastContainer, toast } from 'react-toastify';
@@ -18,6 +19,7 @@ const names = ['Huy', 'Hoàng', 'Vũ', 'Ngọc', 'Hồng', 'Tài', 'Tuấn'];
 
 function App() {
   const [balances, setBalances] = useState({});
+  const [weeklySummaries, setWeeklySummaries] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,19 +40,26 @@ function App() {
       setBalances(data);
     };
 
+    const fetchWeeklySummaries = async () => {
+      const ref = collection(db, 'weekly_summaries');
+      const snapshot = await getDocs(ref);
+      const summaries = [];
+      snapshot.forEach(doc => summaries.push(doc.data()));
+      summaries.sort((a, b) => a.week - b.week);
+      setWeeklySummaries(summaries);
+    };
+
     fetchData();
+    fetchWeeklySummaries();
   }, []);
 
   const updateBalance = async (name, change) => {
     const newAmount = (balances[name] || 0) + change;
 
     try {
-      // Chỉ cho phép cộng tiền
       if (change < 0) return;
 
-      await updateDoc(doc(db, 'balances', name), {
-        amount: newAmount
-      });
+      await updateDoc(doc(db, 'balances', name), { amount: newAmount });
 
       setBalances(prev => ({
         ...prev,
@@ -58,21 +67,14 @@ function App() {
       }));
 
       const gainMessages = [
-        'Lại có thêm 2k , dốt vcl  😎',
+        'Lại có thêm 2k , dốt vcl 😎',
         'Sướng chưa, ngu không chịu được 💰',
-        'ngu  chi mà ngu ác  ✨',
+        'ngu chi mà ngu ác ✨',
         'Lại hạng 5 , ngu mất tiền là đúng 😂',
-        'Hạng 5 là do mình ngu chứ do ai 🧧',
-        'Không đổ lỗi , ngu là phải chịu  😎',
-        'chán không tả nổi , ngu thế  😎',
-        'ngu ơi là ngu , kém ơi là kém 😎',
-        'thứ ăn hại 😎',
-        'có thế mà hạng 5 , đần ác 😎',
-        'dốt thua mỗi Polpot 😎',
+        'Không đổ lỗi , ngu là phải chịu 😎',
       ];
 
       const message = gainMessages[Math.floor(Math.random() * gainMessages.length)];
-
       toast.success(message, { position: "top-center", autoClose: 2000 });
     } catch (error) {
       toast.error('Lỗi khi cập nhật dữ liệu! 😵');
@@ -90,8 +92,81 @@ function App() {
         },
         {
           label: 'Hủy',
-          onClick: () => toast.info({ position: "top-center", autoClose: 2000 })
+          onClick: () => toast.info('Đã huỷ')
         }
+      ]
+    });
+  };
+
+  const handleWeeklyTotal = async () => {
+    const total = Object.values(balances).reduce((a, b) => a + b, 0);
+    const loser = Object.entries(balances).reduce((a, b) => (b[1] > a[1] ? b : a));
+
+    const currentWeek = weeklySummaries.length + 1;
+
+    try {
+      await setDoc(doc(db, 'weekly_summaries', `week_${currentWeek}`), {
+        week: currentWeek,
+        total,
+        loser: loser[0],
+        loserAmount: loser[1]
+      });
+
+      toast.success(`📊 Tổng tuần là ${total} VND. ${loser[0]} gà nhất 🐔 với ${loser[1]} VND.`);
+
+      setWeeklySummaries(prev => [
+        ...prev,
+        { week: currentWeek, total, loser: loser[0], loserAmount: loser[1] }
+      ]);
+    } catch (error) {
+      toast.error('❌ Lỗi khi lưu kết quả tuần');
+    }
+  };
+
+  const handleDeleteAllWeeklySummaries = async () => {
+    confirmAlert({
+      title: 'Xác nhận xoá',
+      message: 'Bạn có chắc chắn muốn xoá toàn bộ lịch sử tổng tuần không?',
+      buttons: [
+        {
+          label: 'Xoá hết',
+          onClick: async () => {
+            try {
+              const ref = collection(db, 'weekly_summaries');
+              const snapshot = await getDocs(ref);
+              const deletePromises = snapshot.docs.map(docSnap => deleteDoc(docSnap.ref));
+              await Promise.all(deletePromises);
+              setWeeklySummaries([]);
+              toast.success('🗑️ Đã xoá toàn bộ lịch sử tổng tuần!');
+            } catch (error) {
+              toast.error('❌ Lỗi khi xoá lịch sử!');
+            }
+          }
+        },
+        { label: 'Hủy', onClick: () => toast.info('Đã huỷ') }
+      ]
+    });
+  };
+
+  const handleDeleteSingleWeek = (weekNumber) => {
+    confirmAlert({
+      title: `Xoá tuần ${weekNumber}`,
+      message: `Bạn có chắc muốn xoá dữ liệu của tuần ${weekNumber}?`,
+      buttons: [
+        {
+          label: 'Xoá',
+          onClick: async () => {
+            try {
+              const weekDocRef = doc(db, 'weekly_summaries', `week_${weekNumber}`);
+              await deleteDoc(weekDocRef);
+              setWeeklySummaries(prev => prev.filter(summary => summary.week !== weekNumber));
+              toast.success(`✅ Đã xoá tuần ${weekNumber}`);
+            } catch (error) {
+              toast.error('❌ Lỗi khi xoá tuần!');
+            }
+          }
+        },
+        { label: 'Huỷ', onClick: () => toast.info('Đã huỷ') }
       ]
     });
   };
@@ -100,6 +175,7 @@ function App() {
     <div className="container">
       <ToastContainer />
       <div className="title">💰 Tiền mất tật mang ( Stupid )</div>
+
       {names.map(name => (
         <div className="user-row" key={name}>
           <div className="user-name">{name}</div>
@@ -109,6 +185,27 @@ function App() {
           </div>
         </div>
       ))}
+
+      <button className="weekly-total" onClick={handleWeeklyTotal}>📊 Tổng tiền tuần</button>
+
+      <div className="history">
+        <h3>Lịch sử tổng tuần</h3>
+        <button className="delete-all" onClick={handleDeleteAllWeeklySummaries}>
+          🗑️ Xoá toàn bộ lịch sử
+        </button>
+        {weeklySummaries.length === 0 ? (
+          <p>Chưa có dữ liệu tổng tuần nào.</p>
+        ) : (
+          weeklySummaries.map((entry, index) => (
+            <div key={index} className="summary">
+              <span>
+                <strong>Tuần {entry.week}</strong> — Tổng: {entry.total} VND — 🐔 {entry.loser} ({entry.loserAmount} VND)
+              </span>
+              <button className="delete-week" onClick={() => handleDeleteSingleWeek(entry.week)}>Xoá</button>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
