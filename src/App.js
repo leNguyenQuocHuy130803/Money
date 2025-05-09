@@ -7,7 +7,9 @@ import {
   getDocs,
   setDoc,
   updateDoc,
-  deleteDoc
+  deleteDoc,
+  addDoc,
+  serverTimestamp
 } from 'firebase/firestore';
 
 import { ToastContainer, toast } from 'react-toastify';
@@ -20,6 +22,7 @@ const names = ['Huy', 'Hoàng', 'Vũ', 'Ngọc', 'Hồng', 'Tài', 'Tuấn'];
 function App() {
   const [balances, setBalances] = useState({});
   const [weeklySummaries, setWeeklySummaries] = useState([]);
+  const [history, setHistory] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,8 +52,17 @@ function App() {
       setWeeklySummaries(summaries);
     };
 
+    const fetchHistory = async () => {
+      const ref = collection(db, 'history');
+      const snapshot = await getDocs(ref);
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      data.sort((a, b) => b.timestamp?.seconds - a.timestamp?.seconds);
+      setHistory(data);
+    };
+
     fetchData();
     fetchWeeklySummaries();
+    fetchHistory();
   }, []);
 
   const updateBalance = async (name, change) => {
@@ -66,6 +78,13 @@ function App() {
         [name]: newAmount
       }));
 
+      // Ghi lịch sử cộng tiền
+      await addDoc(collection(db, 'history'), {
+        name,
+        amount: change,
+        timestamp: serverTimestamp()
+      });
+
       const gainMessages = [
         'Lại có thêm 2k , dốt vcl 😎',
         'Sướng chưa, ngu không chịu được 💰',
@@ -76,6 +95,14 @@ function App() {
 
       const message = gainMessages[Math.floor(Math.random() * gainMessages.length)];
       toast.success(message, { position: "top-center", autoClose: 2000 });
+
+      // Reload lịch sử
+      const ref = collection(db, 'history');
+      const snapshot = await getDocs(ref);
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      data.sort((a, b) => b.timestamp?.seconds - a.timestamp?.seconds);
+      setHistory(data);
+
     } catch (error) {
       toast.error('Lỗi khi cập nhật dữ liệu! 😵');
     }
@@ -101,7 +128,6 @@ function App() {
   const handleWeeklyTotal = async () => {
     const total = Object.values(balances).reduce((a, b) => a + b, 0);
     const loser = Object.entries(balances).reduce((a, b) => (b[1] > a[1] ? b : a));
-
     const currentWeek = weeklySummaries.length + 1;
 
     try {
@@ -188,7 +214,8 @@ function App() {
 
       <button className="weekly-total" onClick={handleWeeklyTotal}>📊 Tổng tiền tuần</button>
 
-      <div className="history">
+      {/* history sumarry money week */}
+      {/* <div className="history">
         <h3>Lịch sử tổng tuần</h3>
         <button className="delete-all" onClick={handleDeleteAllWeeklySummaries}>
           🗑️ Xoá toàn bộ lịch sử
@@ -206,6 +233,66 @@ function App() {
           ))
         )}
       </div>
+
+      <div className="history-log">
+        <h3>📜 Lịch sử cộng tiền</h3>
+        {history.length === 0 ? (
+          <p>Chưa có lịch sử nào.</p>
+        ) : (
+          history.map(entry => (
+            <div key={entry.id} className="history-entry">
+              <span>{entry.name} được cộng {entry.amount} VND</span>
+              <span style={{ fontSize: '12px', color: '#888' }}>
+                {entry.timestamp?.toDate().toLocaleString()}
+              </span>
+            </div>
+          ))
+        )}
+      </div> */}
+
+      <div className="history">
+        {/* Lịch sử tổng tuần */}
+        <div className="history-section">
+          <div className="section-title">
+            🧾 <span>Lịch sử tổng tuần</span>
+          </div>
+          <button className="delete-all" onClick={handleDeleteAllWeeklySummaries}>
+            🗑️ Xoá toàn bộ lịch sử
+          </button>
+          {weeklySummaries.length === 0 ? (
+            <p className="no-data">Chưa có dữ liệu tổng tuần nào.</p>
+          ) : (
+            weeklySummaries.map((entry, index) => (
+              <div key={index} className="summary">
+                <span>
+                  <strong>Tuần {entry.week}</strong> — Tổng: {entry.total.toLocaleString()} VND — 🐔 {entry.loser} ({entry.loserAmount.toLocaleString()} VND)
+                </span>
+                <button className="delete-week" onClick={() => handleDeleteSingleWeek(entry.week)}>Xoá</button>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Lịch sử cộng tiền */}
+        <div className="history-section">
+          <div className="section-title">
+            📜 <span>Lịch sử cộng tiền</span>
+          </div>
+          {history.length === 0 ? (
+            <p className="no-data">Chưa có lịch sử nào.</p>
+          ) : (
+            history.map(entry => (
+              <div key={entry.id} className="summary">
+                <span>{entry.name} được cộng {entry.amount.toLocaleString()} VND</span>
+                <span style={{ fontSize: '12px', color: '#888' }}>
+                  {entry.timestamp?.toDate().toLocaleString()}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
     </div>
   );
 }

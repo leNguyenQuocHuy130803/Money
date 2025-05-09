@@ -84,3 +84,57 @@
   border-radius: 4px;
   cursor: pointer;
 }
+
+/* // css cho phần history và sum money week  */
+.section-title {
+  font-weight: bold;
+  font-size: 18px;
+  margin: 20px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title .icon {
+  font-size: 20px;
+}
+
+.no-data {
+  font-style: italic;
+  color: #666;
+  margin-left: 4px;
+}
+
+.history-section {
+  background: #fafafa;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+}
+
+.history-section:not(:last-child) {
+  margin-bottom: 20px;
+}
+
+.delete-all {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.history-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  font-size: 14px;
+}
